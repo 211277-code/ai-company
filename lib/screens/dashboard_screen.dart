@@ -1,7 +1,6 @@
-import '../agents/pm_agent.dart';
 import 'package:flutter/material.dart';
-import '../agents/ceo_agent.dart';
-final CEOAgent ceo = CEOAgent();
+import '../services/meeting_engine.dart';
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -10,15 +9,17 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  final CEOAgent ceo = CEOAgent();
+  final MeetingEngine meetingEngine = MeetingEngine();
 
-  String advice = "等待 CEO Agent 分析...";
+  List<String> discussions = [];
   List<String> tasks = [];
 
   void startMeeting() {
+    final result = meetingEngine.startMeeting();
+
     setState(() {
-      advice = ceo.getAdvice();
-      tasks = ceo.getTasks();
+      discussions = result.discussions;
+      tasks = result.tasks;
     });
   }
 
@@ -26,45 +27,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("AI 自我進化系統"),
+        title: const Text("AI Meeting Room"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            const Text(
-              "🧠 CEO Agent",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            Text(advice),
-
-            const SizedBox(height: 20),
-
             ElevatedButton(
               onPressed: startMeeting,
-              child: const Text("開始 AI 會議"),
+              child: const Text("召開 AI 會議"),
             ),
-
-            const SizedBox(height: 30),
-
+            const SizedBox(height: 20),
             const Text(
-              "📋 今日任務",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+              "💬 會議討論",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: discussions.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: ListTile(
+                      title: Text(discussions[index]),
+                    ),
+                  );
+                },
               ),
             ),
-
-            const SizedBox(height: 10),
-
+            const Text(
+              "✅ 今日任務",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
             Expanded(
               child: ListView.builder(
                 itemCount: tasks.length,
